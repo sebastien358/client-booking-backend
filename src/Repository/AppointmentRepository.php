@@ -1,0 +1,101 @@
+<?php
+
+namespace App\Repository;
+
+use App\Entity\Appointment;
+use App\Entity\Staff;
+use App\Entity\User;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
+
+/**
+ * @extends ServiceEntityRepository<Appointment>
+ */
+class AppointmentRepository extends ServiceEntityRepository
+{
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Appointment::class);
+    }
+
+    public function findForStaffBetween(Staff $staff, $dayStart, $dayEnd): array {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.staff = :staff')
+            ->andWhere('a.startAt < :dayEnd')
+            ->andWhere('a.endAt > :dayStart')
+            ->setParameter('staff', $staff)
+            ->setParameter('dayStart', $dayStart)
+            ->setParameter('dayEnd', $dayEnd)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function hasConflict(Staff $staff, \DateTimeImmutable $startUtc, \DateTimeImmutable $endUtc): bool {
+        return (bool) $this->createQueryBuilder('a')
+            ->andWhere('a.staff = :staff')
+            ->andWhere('a.startAt < :endUtc')
+            ->andWhere('a.endAt > :startUtc')
+            ->setParameter('staff', $staff)
+            ->setParameter('startUtc', $startUtc)
+            ->setParameter('endUtc', $endUtc)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function findAllAppointments(int $limit, int $offset)
+    {
+        return $this->createQueryBuilder('a')
+            ->setFirstResult($offset)
+            ->setMaxResults($limit)
+            ->orderBy('a.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllAppointmentsSearch(string $search): array
+    {
+        return $this->createQueryBuilder('a')
+            ->leftJoin('a.staff', 's')
+            ->andWhere('s.firstname LIKE :search OR s.lastname LIKE :search')
+            ->setParameter('search', '%' . $search . '%')
+            ->orderBy('s.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllAppointmentUser(User $user)
+    {
+        return $this->createQueryBuilder('a')
+            ->where('a.user = :user')
+            ->setParameter('user', $user)
+            ->orderBy('a.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    //    /**
+    //     * @return Appointment[] Returns an array of Appointment objects
+    //     */
+    //    public function findByExampleField($value): array
+    //    {
+    //        return $this->createQueryBuilder('a')
+    //            ->andWhere('a.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->orderBy('a.id', 'ASC')
+    //            ->setMaxResults(10)
+    //            ->getQuery()
+    //            ->getResult()
+    //        ;
+    //    }
+
+    //    public function findOneBySomeField($value): ?Appointment
+    //    {
+    //        return $this->createQueryBuilder('a')
+    //            ->andWhere('a.exampleField = :val')
+    //            ->setParameter('val', $value)
+    //            ->getQuery()
+    //            ->getOneOrNullResult()
+    //        ;
+    //    }
+}
