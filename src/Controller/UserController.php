@@ -26,7 +26,9 @@ class UserController extends AbstractController
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordHasher;
 
-    public function __construct(LoggerInterface $logger, MailerProvider $mailerProvider, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager)
+    public function __construct(
+        LoggerInterface $logger, MailerProvider $mailerProvider,
+        UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager)
     {
         $this->logger = $logger;
         $this->mailerProvider = $mailerProvider;
@@ -190,6 +192,8 @@ class UserController extends AbstractController
         try {
             $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
+            //dd($data);
+
             if (empty($data['email'])) {
                 return $this->json(['error' => 'Email requis'], Response::HTTP_BAD_REQUEST);
             }
@@ -214,7 +218,7 @@ class UserController extends AbstractController
             return $this->json(['message' => 'Un email a été envoyé'], Response::HTTP_OK);
         } catch(\Throwable $e) {
             $this->logger->error('Erreur verification utilissateur', ['error' => $e->getMessage()]);
-            return $this->json(['error' => 'Erreur verification utilissateur'], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -224,13 +228,9 @@ class UserController extends AbstractController
         try {
             $data = json_decode($request->getContent(), true);
 
-            if (!isset($data['password']) || empty($data['password'])) {
-                return $this->json([
-                    'error' => 'Mot de passe requis'
-                ], Response::HTTP_BAD_REQUEST);
+            if (!$data || empty($data['password'])) {
+                return $this->json(['error' => 'Mot de passe requis'], Response::HTTP_BAD_REQUEST);
             }
-
-            $newPassword = $data['password'];
 
             $user = $userRepository->findOneBy(['resetToken' => $token]);
             if (!$user) {
@@ -249,6 +249,7 @@ class UserController extends AbstractController
                 return $this->json(['type' => 'RESET-PASSWORD', 'message' => 'La demande de réinitialisation a expirée'], Response::HTTP_CONFLICT);
             }
 
+            $newPassword = $data['password'];
             $hashedPassword = $this->passwordHasher->hashPassword($user, $newPassword);
 
             $user->setPassword($hashedPassword);

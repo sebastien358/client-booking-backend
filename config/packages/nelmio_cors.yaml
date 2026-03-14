@@ -1,22 +1,23 @@
 nelmio_cors:
     defaults:
         origin_regex: true
-        allow_credentials: true
         allow_origin:
-            - '^http://localhost(:[0-9]+)?$'
-            - '^http://127\.0\.0\.1(:[0-9]+)?$'
+            - '^https:\/\/(www\.)?demo\.sebastien-petit\.fr$'
+            - '^http:\/\/localhost(:[0-9]+)?$'
+            - '^http:\/\/127\.0\.0\.1(:[0-9]+)?$'
         allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
         allow_headers: ['Content-Type', 'Authorization']
-        expose_headers: []
+        expose_headers: ['Authorization']
         max_age: 3600
 
     paths:
-        '^/api/':
+        '^/':
             origin_regex: true
-            allow_credentials: true
             allow_origin:
-                - '^http://localhost(:[0-9]+)?$'
-                - '^http://127\.0\.0\.1(:[0-9]+)?$'
+                - '^https:\/\/(www\.)?demo\.sebastien-petit\.fr$'
+                - '^http:\/\/localhost(:[0-9]+)?$'
+                - '^http:\/\/127\.0\.0\.1(:[0-9]+)?$'
             allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
             allow_headers: ['Content-Type', 'Authorization']
+            expose_headers: ['Authorization']
             max_age: 3600
