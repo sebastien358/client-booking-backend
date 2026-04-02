@@ -2,7 +2,7 @@ nelmio_cors:
     defaults:
         origin_regex: true
         allow_origin:
-            - '^https:\/\/(www\.)?demo\.sebastien-petit\.fr$'
+            - '^https:\/\/(www\.)?booking\.sebastien-petit\.fr$'
             - '^http:\/\/localhost(:[0-9]+)?$'
             - '^http:\/\/127\.0\.0\.1(:[0-9]+)?$'
         allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
@@ -14,7 +14,7 @@ nelmio_cors:
         '^/':
             origin_regex: true
             allow_origin:
-                - '^https:\/\/(www\.)?demo\.sebastien-petit\.fr$'
+                - '^https:\/\/(www\.)?booking\.sebastien-petit\.fr$'
                 - '^http:\/\/localhost(:[0-9]+)?$'
                 - '^http:\/\/127\.0\.0\.1(:[0-9]+)?$'
             allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
